@@ -1,0 +1,31 @@
+from celeryApp.celery import app
+
+@app.task
+def add(x, y):
+    return x + y
+
+
+@app.task
+def mul(x, y):
+    return x * y
+
+
+@app.task
+def xsum(numbers):
+    return sum(numbers)
+
+@app.task
+def spark_job_task(self):
+	
+	task_id = self.request.id
+	master_path = 'local[2]'
+	project_dir  = "/home/ken/Desktop/"
+	spark_code_path = project_dir + "wordcount.py"
+	
+	os.system("/usr/local/spark-1.4.0-bin-hadoop2.6/bin/spark-submit --master %s %s %s" % (master_path, spark_code_path, self.request.id))
+
+	return {'current' : 100, 'total' : 100, 'status' : 'Task Completed!', 'result': 10}
+
+	
+	
+
