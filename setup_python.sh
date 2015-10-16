@@ -8,5 +8,5 @@ sudo apt-get -y upgrade
 sudo pip install virtualenv
 
 virtualenv venv
-. venv/bin/activate
+source venv/bin/activate
 pip install -r requirements.txt

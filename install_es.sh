@@ -1,36 +1,35 @@
+#!/usr/bin/env bash
 
-# # install oracle java 8
-# sudo apt-get purge openjdk*   # just in case
-# sudo apt-get install software-properties-common
-# sudo add-apt-repository ppa:webupd8team/java
-# sudo apt-get update
-# sudo apt-get install oracle-java8-installer
+sudo apt-get -y update
+sudo apt-get -y upgrade
 
 # install openjdk-7 
-#sudo apt-get purge openjdk*
-#sudo apt-get -y install openjdk-7-jdk
+sudo apt-get purge openjdk*
+sudo apt-get -y install openjdk-7-jdk
 
-# check java version
-java -version
-# java version "1.7.0_65"
+# # check java version
+# java -version
+# # java version "1.7.0_65"
 
 # install curl
-#sudo apt-get -y install curl
+sudo apt-get -y install curl
 
-echo "# Downloading the elasticsearch setup"
-# install Elasticsearch 1.3.2
-wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.2.deb
-sudo dpkg -i elasticsearch-2.0.0-rc1.deb
+# install Elasticsearch 1.5.1
+wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.5.1.tar.gz -O elasticsearch.tar.gz
+tar -xf elasticsearch.tar.gz
 rm elasticsearch.tar.gz
+sudo mv elasticsearch-* elasticsearch
+sudo mv elasticsearch /usr/local/share
 
-#test the installation
-sudo /etc/init.d/elasticsearch start
-curl localhost:9200
-sudo /etc/init.d/elasticsearch stop
-
-echo "# Starting the elasticsearch service"
+# set up ES as service
+curl -L http://github.com/elasticsearch/elasticsearch-servicewrapper/tarball/master | tar -xz
+sudo mv *servicewrapper*/service /usr/local/share/elasticsearch/bin/
+rm -Rf *servicewrapper*
+sudo /usr/local/share/elasticsearch/bin/service/elasticsearch install
+sudo ln -s 'readlink -f /usr/local/share/elasticsearch/bin/service/elasticsearch' /usr/local/bin/rcelasticsearch
+ 
 # start ES service
-sudo /bin/systemctl start elasticsearch.service
+sudo service elasticsearch start
 
 
 # # test ES
@@ -43,17 +42,6 @@ sudo /bin/systemctl start elasticsearch.service
 cd /usr/local/share/elasticsearch/
 ./bin/plugin -install royrusso/elasticsearch-HQ
 
-# http://localhost:9200/_plugin/HQ/
-
-# # stop ES service
-# sudo service elasticsearch stop
-
-
-# # directories
-# /usr/local/share/elasticsearch
-
-echo "# Installing python es client"
-# install pip and the python ES client
-sudo apt-get -y install python-setuptools
-sudo easy_install pip
-sudo pip install elasticsearch
+# enable cors (to be able to use Sense)
+sudo echo "http.cors.enabled: true" >> /usr/local/share/elasticsearch/config/elasticsearch.yml
+sudo service elasticsearch restart
